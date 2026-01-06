@@ -1,156 +1,167 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Post Found Item</title>
-  <link rel="stylesheet" href="../css/main.css" />
-  <link rel="stylesheet" href="../css/pages/items.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova Find - Found Items</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 28px;
+            color: #1a1a2e;
+            margin-bottom: 24px;
+        }
+
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .item-card {
+            background: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .item-image {
+            width: 100%;
+            height: 180px;
+            background: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9ca3af;
+            font-size: 14px;
+        }
+
+        .item-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .item-content {
+            padding: 20px;
+        }
+
+        .item-category {
+            display: inline-block;
+            padding: 4px 10px;
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: capitalize;
+            margin-bottom: 10px;
+        }
+
+        .item-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin-bottom: 8px;
+        }
+
+        .item-description {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 12px;
+        }
+
+        .item-meta {
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        .item-meta p {
+            margin-bottom: 4px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <h1>Found Items</h1>
+        <div class="items-grid" id="itemsGrid">
+            <p class="loading">Loading...</p>
+        </div>
+    </div>
 
-  <!-- Navbar -->
-  <nav id="navbar"></nav>
+    <script>
+        // API URL - connects to MongoDB database: novaFind, collection: foundItems
+        const API_URL = 'http://localhost:3000/api/found-items';
 
-  <main class="container">
-    <h1>Report a Found Item</h1>
+        // Fetch and display found items
+        async function fetchFoundItems() {
+            const itemsGrid = document.getElementById('itemsGrid');
 
-    <form id="foundItemForm" enctype="multipart/form-data">
+            try {
+                const response = await fetch(API_URL);
+                const items = await response.json();
+                displayItems(items);
+            } catch (error) {
+                console.error('Error:', error);
+                itemsGrid.innerHTML = '<p class="loading">Failed to load items</p>';
+            }
+        }
 
-      <!-- Item Name -->
-      <div class="form-group">
-        <label for="itemName">Item Name *</label>
-        <input type="text" id="itemName" name="itemName" required />
-      </div>
+        // Display items
+        function displayItems(items) {
+            const itemsGrid = document.getElementById('itemsGrid');
 
-      <!-- Category -->
-      <div class="form-group">
-        <label for="category">Category *</label>
-        <select id="category" name="category" required>
-          <option value="">Select category</option>
-          <option value="electronics">Electronics</option>
-          <option value="documents">Documents</option>
-          <option value="accessories">Accessories</option>
-          <option value="books">Books</option>
-          <option value="others">Others</option>
-        </select>
-      </div>
-
-      <!-- Description -->
-      <div class="form-group">
-        <label for="description">Description *</label>
-        <textarea id="description" name="description" rows="4" required></textarea>
-      </div>
-
-      <!-- Found Location -->
-      <div class="form-group">
-        <label for="location">Found At *</label>
-        <input type="text" id="location" name="location" required />
-      </div>
-
-      <!-- Date -->
-      <div class="form-group">
-        <label for="foundDate">Date Found *</label>
-        <input type="date" id="foundDate" name="foundDate" required />
-      </div>
-
-      <!-- Image Upload -->
-      <div class="form-group">
-        <label for="image">Upload Image (optional)</label>
-        <input type="file" id="image" name="image" accept="image/*" />
-      </div>
-
-      <!-- Submit -->
-      <button type="submit">Submit Found Item</button>
-
-    </form>
-  </main>
-
-  <script>
-    // Form handling for Found Items
-    const foundItemForm = document.getElementById('foundItemForm');
-    const imageInput = document.getElementById('image');
-
-    // Set max date to today
-    const foundDateInput = document.getElementById('foundDate');
-    foundDateInput.max = new Date().toISOString().split('T')[0];
-
-    // Image preview
-    imageInput.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            // Validate file size (max 5MB)
-            if (file.size > 5 * 1024 * 1024) {
-                alert('Image size should be less than 5MB');
-                imageInput.value = '';
+            if (items.length === 0) {
+                itemsGrid.innerHTML = '<p class="loading">No found items found</p>';
                 return;
             }
 
-            // Validate file type
-            const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-            if (!validTypes.includes(file.type)) {
-                alert('Please upload a valid image file (JPEG, PNG, GIF, or WebP)');
-                imageInput.value = '';
-                return;
-            }
-        }
-    });
-
-    // Form submission
-    foundItemForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-
-        // Get form data
-        const formData = new FormData(foundItemForm);
-        
-        // Create item object for display/validation
-        const itemData = {
-            itemName: formData.get('itemName').trim(),
-            category: formData.get('category'),
-            description: formData.get('description').trim(),
-            location: formData.get('location').trim(),
-            foundDate: formData.get('foundDate'),
-            image: formData.get('image')
-        };
-
-        // Validation
-        if (!itemData.itemName || !itemData.category || !itemData.description || !itemData.location || !itemData.foundDate) {
-            alert('Please fill in all required fields');
-            return;
+            itemsGrid.innerHTML = items.map(item => `
+                <div class="item-card">
+                    <div class="item-image">
+                        ${item.image && item.image.data 
+                            ? `<img src="data:${item.image.contentType};base64,${item.image.data}" alt="${item.name}">`
+                            : 'No Image'
+                        }
+                    </div>
+                    <div class="item-content">
+                        <span class="item-category">${item.category}</span>
+                        <h3 class="item-name">${item.name}</h3>
+                        <p class="item-description">${item.description}</p>
+                        <div class="item-meta">
+                            <p><strong>Location:</strong> ${item.location}</p>
+                            <p><strong>Date:</strong> ${new Date(item.date).toLocaleDateString()}</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
         }
 
-        // Description length check
-        if (itemData.description.length < 10) {
-            alert('Please provide a more detailed description (at least 10 characters)');
-            return;
-        }
-
-        try {
-            // TODO: Replace with actual API endpoint
-            const response = await fetch('/api/found-items', {
-                method: 'POST',
-                body: formData
-            });
-
-            if (response.ok) {
-                alert('Found item reported successfully!');
-                foundItemForm.reset();
-                window.location.href = 'dashboard.html';
-            } else {
-                const error = await response.json();
-                alert(error.message || 'Failed to submit found item');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            // For now, show success since backend isn't ready
-            alert('Found item reported successfully!');
-            foundItemForm.reset();
-        }
-    });
-
-    // Clear form button (optional - add to HTML if needed)
-    function clearForm() {
-        foundItemForm.reset();
-    }
-  </script>
+        // Fetch on page load
+        fetchFoundItems();
+    </script>
 </body>
 </html>
