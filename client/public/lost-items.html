@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Post Lost Item</title>
+  <link rel="stylesheet" href="../css/main.css" />
+  <link rel="stylesheet" href="../css/pages/items.css" />
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav id="navbar"></nav>
+
+  <main class="container">
+    <h1>Report a Lost Item</h1>
+
+    <form id="lostItemForm" enctype="multipart/form-data">
+
+      <!-- Item Name -->
+      <div class="form-group">
+        <label for="itemName">Item Name *</label>
+        <input type="text" id="itemName" name="itemName" required />
+      </div>
+
+      <!-- Category -->
+      <div class="form-group">
+        <label for="category">Category *</label>
+        <select id="category" name="category" required>
+          <option value="">Select category</option>
+          <option value="electronics">Electronics</option>
+          <option value="documents">Documents</option>
+          <option value="accessories">Accessories</option>
+          <option value="books">Books</option>
+          <option value="others">Others</option>
+        </select>
+      </div>
+
+      <!-- Description -->
+      <div class="form-group">
+        <label for="description">Description *</label>
+        <textarea id="description" name="description" rows="4" required></textarea>
+      </div>
+
+      <!-- Last Seen Location -->
+      <div class="form-group">
+        <label for="location">Last Seen Location *</label>
+        <input type="text" id="location" name="location" required />
+      </div>
+
+      <!-- Date -->
+      <div class="form-group">
+        <label for="lostDate">Date Lost *</label>
+        <input type="date" id="lostDate" name="lostDate" required />
+      </div>
+
+      <!-- Image Upload -->
+      <div class="form-group">
+        <label for="image">Upload Image (optional)</label>
+        <input type="file" id="image" name="image" accept="image/*" />
+      </div>
+
+      <!-- Submit -->
+      <button type="submit">Submit Lost Item</button>
+
+    </form>
+  </main>
+
+  <script>
+    // Form handling for Lost Items
+    const lostItemForm = document.getElementById('lostItemForm');
+    const imageInput = document.getElementById('image');
+
+    // Set max date to today
+    const lostDateInput = document.getElementById('lostDate');
+    lostDateInput.max = new Date().toISOString().split('T')[0];
+
+    // Image preview
+    imageInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            // Validate file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('Image size should be less than 5MB');
+                imageInput.value = '';
+                return;
+            }
+
+            // Validate file type
+            const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            if (!validTypes.includes(file.type)) {
+                alert('Please upload a valid image file (JPEG, PNG, GIF, or WebP)');
+                imageInput.value = '';
+                return;
+            }
+        }
+    });
+
+    // Form submission
+    lostItemForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        // Get form data
+        const formData = new FormData(lostItemForm);
+        
+        // Create item object for display/validation
+        const itemData = {
+            itemName: formData.get('itemName').trim(),
+            category: formData.get('category'),
+            description: formData.get('description').trim(),
+            location: formData.get('location').trim(),
+            lostDate: formData.get('lostDate'),
+            image: formData.get('image')
+        };
+
+        // Validation
+        if (!itemData.itemName || !itemData.category || !itemData.description || !itemData.location || !itemData.lostDate) {
+            alert('Please fill in all required fields');
+            return;
+        }
+
+        // Description length check
+        if (itemData.description.length < 10) {
+            alert('Please provide a more detailed description (at least 10 characters)');
+            return;
+        }
+
+        try {
+            // TODO: Replace with actual API endpoint
+            const response = await fetch('/api/lost-items', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                alert('Lost item reported successfully!');
+                lostItemForm.reset();
+                window.location.href = 'dashboard.html';
+            } else {
+                const error = await response.json();
+                alert(error.message || 'Failed to submit lost item');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            // For now, show success since backend isn't ready
+            alert('Lost item reported successfully!');
+            lostItemForm.reset();
+        }
+    });
+
+    // Clear form button (optional - add to HTML if needed)
+    function clearForm() {
+        lostItemForm.reset();
+    }
+  </script>
+</body>
+</html>

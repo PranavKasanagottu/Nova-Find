@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova Find - Dashboard</title>
+    <link rel="stylesheet" href="../css/pages/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h1 class="logo">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                Nova Find
+            </h1>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-link active">
+                <i class="fa-solid fa-house"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="lost-items.html" class="nav-link">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span>Lost Items</span>
+            </a>
+            <a href="found-items.html" class="nav-link">
+                <i class="fa-solid fa-box-open"></i>
+                <span>Found Items</span>
+            </a>
+            <a href="my-claims.html" class="nav-link">
+                <i class="fa-solid fa-hand-holding"></i>
+                <span>My Claims</span>
+            </a>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <a href="login.html" class="nav-link logout">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <h2 class="page-title">Dashboard</h2>
+            </div>
+            <div class="header-right">
+                <div class="user-info">
+                    <span class="user-name">Welcome, User</span>
+                    <div class="user-avatar">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <div class="dashboard-content">
+            <!-- Stats Cards -->
+            <section class="stats-section">
+                <div class="stat-card">
+                    <div class="stat-icon lost">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 class="stat-number">24</h3>
+                        <p class="stat-label">Lost Items</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon found">
+                        <i class="fa-solid fa-box-open"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 class="stat-number">18</h3>
+                        <p class="stat-label">Found Items</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon claims">
+                        <i class="fa-solid fa-hand-holding"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 class="stat-number">5</h3>
+                        <p class="stat-label">Pending Claims</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon resolved">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 class="stat-number">12</h3>
+                        <p class="stat-label">Items Returned</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quick Actions -->
+            <section class="quick-actions">
+                <h3 class="section-title">Quick Actions</h3>
+                <div class="action-buttons">
+                    <a href="lost-items.html" class="action-btn report-lost">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Report Lost Item</span>
+                    </a>
+                    <a href="found-items.html" class="action-btn report-found">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Post Found Item</span>
+                    </a>
+                </div>
+            </section>
+
+            <!-- Recent Activity -->
+            <section class="recent-activity">
+                <h3 class="section-title">Recent Activity</h3>
+                <div class="activity-list">
+                    <div class="activity-item">
+                        <div class="activity-icon found">
+                            <i class="fa-solid fa-box-open"></i>
+                        </div>
+                        <div class="activity-details">
+                            <p class="activity-text"><strong>Blue Backpack</strong> was found near Library</p>
+                            <span class="activity-time">2 hours ago</span>
+                        </div>
+                    </div>
+                    
+                    <div class="activity-item">
+                        <div class="activity-icon lost">
+                            <i class="fa-solid fa-circle-exclamation"></i>
+                        </div>
+                        <div class="activity-details">
+                            <p class="activity-text"><strong>iPhone 14</strong> reported lost at Cafeteria</p>
+                            <span class="activity-time">5 hours ago</span>
+                        </div>
+                    </div>
+                    
+                    <div class="activity-item">
+                        <div class="activity-icon resolved">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </div>
+                        <div class="activity-details">
+                            <p class="activity-text"><strong>Student ID Card</strong> was returned to owner</p>
+                            <span class="activity-time">1 day ago</span>
+                        </div>
+                    </div>
+                    
+                    <div class="activity-item">
+                        <div class="activity-icon claims">
+                            <i class="fa-solid fa-hand-holding"></i>
+                        </div>
+                        <div class="activity-details">
+                            <p class="activity-text">New claim submitted for <strong>Silver Watch</strong></p>
+                            <span class="activity-time">2 days ago</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.querySelector('.sidebar');
+
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+                sidebar.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>
