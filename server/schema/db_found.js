@@ -1,10 +1,5 @@
 const mongoose = require('mongoose');
 
-// Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/Nova_Items')
-  .then(() => console.log('Connected to Nova_Items database'))
-  .catch(err => console.error('MongoDB connection error:', err));
-
 // Define the Found Item Schema
 const foundSchema = new mongoose.Schema({
   name: {
@@ -34,7 +29,7 @@ const foundSchema = new mongoose.Schema({
   }
 });
 
-// Create the model with collection name 'lost'
+// Create the model with collection name 'found'
 const Found = mongoose.model('Found', foundSchema, 'found');
 
 module.exports = Found;

@@ -3,13 +3,14 @@ const mongoose = require('mongoose');
 const multer = require('multer');
 const cors = require('cors');
 const path = require('path');
+require('dotenv').config({ quiet: true });
 
 // Import models
 const Lost = require('./schema/db_lost');
 const Found = require('./schema/db_found');
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors());
@@ -37,7 +38,7 @@ const upload = multer({
 });
 
 // Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/Nova_Items')
+mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('Connected to Nova_Items database'))
   .catch(err => console.error('MongoDB connection error:', err));
 

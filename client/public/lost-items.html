@@ -103,6 +103,7 @@
             color: #6b7280;
         }
     </style>
+    <script src="../js/config.js"></script>
 </head>
 <body>
     <div class="container">
@@ -114,7 +115,7 @@
 
     <script>
         // API URL - connects to MongoDB database: Nova_Items, collection: lost
-        const API_URL = 'http://localhost:5000/api/lost-items';
+        const API_URL = `${CONFIG.API_BASE_URL}/api/lost-items`;
 
         // Fetch and display lost items
         async function fetchLostItems() {
