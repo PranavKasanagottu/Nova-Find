@@ -3,11 +3,13 @@ const mongoose = require('mongoose');
 const multer = require('multer');
 const cors = require('cors');
 const path = require('path');
+const bcrypt = require('bcrypt');
 require('dotenv').config({ quiet: true });
 
 // Import models
 const Lost = require('./schema/db_lost');
 const Found = require('./schema/db_found');
+const User = require('./schema/db_user');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -129,6 +131,140 @@ app.post('/api/found-items', upload.single('image'), async (req, res) => {
   } catch (error) {
     console.error('Error saving found item:', error);
     res.status(500).json({ message: 'Error saving found item', error: error.message });
+  }
+});
+
+// ==================== AUTH ROUTES ====================
+
+// 5) POST - User Registration
+app.post('/api/register', async (req, res) => {
+  try {
+    const { username, password, confirmPassword } = req.body;
+
+    // Validation
+    if (!username || !password || !confirmPassword) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'All fields are required' 
+      });
+    }
+
+    // Check username length
+    if (username.length < 3 || username.length > 30) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Username must be between 3 and 30 characters' 
+      });
+    }
+
+    // Check password length
+    if (password.length < 6) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Password must be at least 6 characters' 
+      });
+    }
+
+    // Check if passwords match
+    if (password !== confirmPassword) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Passwords do not match' 
+      });
+    }
+
+    // Check if username already exists
+    const existingUser = await User.findOne({ username: username.toLowerCase() });
+    if (existingUser) {
+      return res.status(409).json({ 
+        success: false, 
+        message: 'Username already exists' 
+      });
+    }
+
+    // Create new user (password will be hashed by pre-save middleware)
+    const newUser = new User({
+      username: username.toLowerCase(),
+      password: password
+    });
+
+    await newUser.save();
+
+    res.status(201).json({ 
+      success: true, 
+      message: 'Registration successful! You can now login.',
+      user: { username: newUser.username }
+    });
+
+  } catch (error) {
+    console.error('Registration error:', error);
+    
+    // Handle mongoose duplicate key error
+    if (error.code === 11000) {
+      return res.status(409).json({ 
+        success: false, 
+        message: 'Username already exists' 
+      });
+    }
+    
+    res.status(500).json({ 
+      success: false, 
+      message: 'Registration failed. Please try again.',
+      error: error.message 
+    });
+  }
+});
+
+// 6) POST - User Login
+app.post('/api/login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    // Validation
+    if (!username || !password) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Username and password are required' 
+      });
+    }
+
+    // Find user by username (case-insensitive)
+    const user = await User.findOne({ username: username.toLowerCase() });
+    
+    if (!user) {
+      return res.status(401).json({ 
+        success: false, 
+        message: 'Invalid username or password' 
+      });
+    }
+
+    // Compare password using the model method
+    const isPasswordValid = await user.comparePassword(password);
+    
+    if (!isPasswordValid) {
+      return res.status(401).json({ 
+        success: false, 
+        message: 'Invalid username or password' 
+      });
+    }
+
+    // Login successful
+    res.status(200).json({ 
+      success: true, 
+      message: 'Login successful!',
+      user: { 
+        username: user.username,
+        id: user._id 
+      }
+    });
+
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Login failed. Please try again.',
+      error: error.message 
+    });
   }
 });
 

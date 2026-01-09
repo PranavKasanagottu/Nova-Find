@@ -6,6 +6,12 @@
     <title>Nova Find - Login</title>
     <link rel="stylesheet" href="../css/pages/auth.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script>
+        // Redirect to dashboard if already logged in
+        if (localStorage.getItem('isLoggedIn') === 'true' && localStorage.getItem('user')) {
+            window.location.replace('dashboard.html');
+        }
+    </script>
 </head>
 <body>
     <div class="auth-container">
@@ -15,7 +21,7 @@
                 <p class="auth-subtitle">Sign in to your account</p>
             </div>
             
-            <form action="/login" method="post" class="auth-form" id="loginForm">
+            <form class="auth-form" id="loginForm">
                 <div class="form-group">
                     <label for="username" class="form-label">Username</label>
                     <div class="input-wrapper">
@@ -86,21 +92,76 @@
         });
 
         const loginForm = document.getElementById('loginForm');
-        loginForm.addEventListener('submit', function(e) {
-
+        loginForm.addEventListener('submit', async function(e) {
             e.preventDefault();
 
             const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;
 
             if (!username || !password) {
-                e.preventDefault();
-                alert('Please fill in all fields');
+                showMessage('Please fill in all fields', 'error');
                 return;
             }
 
-            window.location.href = "dashboard.html";
+            const submitBtn = loginForm.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Signing in...';
+            submitBtn.disabled = true;
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Store user info in localStorage
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    localStorage.setItem('isLoggedIn', 'true');
+                    
+                    showMessage('Login successful! Redirecting...', 'success');
+                    
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1000);
+                } else {
+                    showMessage(data.message || 'Login failed', 'error');
+                    submitBtn.innerHTML = originalBtnText;
+                    submitBtn.disabled = false;
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showMessage('An error occurred. Please try again.', 'error');
+                submitBtn.innerHTML = originalBtnText;
+                submitBtn.disabled = false;
+            }
         });
+
+        function showMessage(message, type) {
+            // Remove existing message if any
+            const existingMsg = document.querySelector('.auth-message');
+            if (existingMsg) existingMsg.remove();
+
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `auth-message ${type}`;
+            msgDiv.innerHTML = `
+                <i class="fa-solid ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                <span>${message}</span>
+            `;
+            
+            const form = document.getElementById('loginForm');
+            form.insertBefore(msgDiv, form.firstChild);
+
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (msgDiv.parentNode) msgDiv.remove();
+            }, 5000);
+        }
     </script>
 </body>
 </html>
